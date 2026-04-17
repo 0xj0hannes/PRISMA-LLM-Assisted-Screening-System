@@ -1,0 +1,14 @@
+{
+  "IC2": {
+    "name": "Cybercriminal Behavior",
+    "definition": "The study pertains to understanding, characterizing, or profiling cybercriminal behavior, motives, or traits.",
+    "signals": "Motives (financial, ideology), Traits (narcissism, impulsivity), Reasoning/Decision-making, Behavioral patterns (escalation).",
+    "negative_indicators": "Purely technical system descriptions, Malware analysis without offender cognition."
+  },
+  "IC3": {
+    "name": "Human Element",
+    "definition": "The study focuses on the behavioral, psychological, or sociological aspects of perpetrators.",
+    "signals": "Psychological constructs (Dark Triad, empathy), Sociological framing (subcultures, social learning), Human decision-making.",
+    "negative_indicators": "Victim-only impact studies, Defensive frameworks without attacker cognition."
+  }
+}

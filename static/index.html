@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA LLM-Assisted Screening System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="description" content="AI-assisted PRISMA literature screening tool.">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">🛡️</div>
+                <h1>PRISMA AI</h1>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="ingest">
+                    <span class="icon">📥</span> Ingestion
+                </li>
+                <li data-tab="screen">
+                    <span class="icon">🤖</span> Screening
+                </li>
+                <li data-tab="review">
+                    <span class="icon">🕵️</span> Review
+                </li>
+                <li data-tab="report">
+                    <span class="icon">📊</span> Reports
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <!-- Ingestion Tab -->
+            <section id="ingest" class="tab-pane active">
+                <div class="header">
+                    <h2>Data Ingestion</h2>
+                    <p>Upload your BibTeX files for automatic deduplication and parsing.</p>
+                </div>
+                <div class="card glass">
+                    <div class="upload-zone" id="upload-zone">
+                        <span class="upload-icon">📁</span>
+                        <p>Drag & Drop your <strong>.bib</strong> files here, or click to browse</p>
+                        <input type="file" id="bib-upload" accept=".bib" multiple hidden>
+                    </div>
+                    <div class="status-msg" id="upload-status"></div>
+                </div>
+            </section>
+
+            <!-- Screening Tab -->
+            <section id="screen" class="tab-pane">
+                <div class="header">
+                    <h2>AI Screening</h2>
+                    <p>Leverage LLM to process abstracts against inclusion criteria.</p>
+                </div>
+
+                <div class="card glass mb-20 criteria-box">
+                    <h3 style="margin-bottom: 12px;">Active Inclusion Criteria</h3>
+                    <ul id="active-criteria-list" style="list-style-position: inside; color: var(--text-secondary);">
+                        <!-- Dynamically populated by app.js -->
+                    </ul>
+                </div>
+
+                <div class="card glass">
+                    <div class="screen-stats">
+                        <div class="stat-box">
+                            <h3 id="stat-total">0</h3>
+                            <span>Total Records</span>
+                        </div>
+                        <div class="stat-box">
+                            <h3 id="stat-screened">0</h3>
+                            <span>Screened</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary mt-20" id="btn-start-screen">Start Screening</button>
+                    <div class="progress-container mt-20 hidden" id="screen-progress">
+                        <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
+                            <button class="btn-danger" id="btn-stop-screen"
+                                style="padding: 6px 12px; font-size: 0.8rem;">Stop</button>
+                            <p id="progress-text">Screening in progress...</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Review Tab -->
+            <section id="review" class="tab-pane">
+                <div class="header">
+                    <h2>Human-in-the-loop Review</h2>
+                    <p>Review ambiguous cases ("Maybe").</p>
+                </div>
+                <div class="review-area" id="review-area">
+                    <div class="glass no-records-msg">
+                        <p>Loading records for review...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Report Tab -->
+            <section id="report" class="tab-pane">
+                <div class="header">
+                    <h2>PRISMA Reporting</h2>
+                    <p>Generate analytical statistics and export data.</p>
+                </div>
+                <div class="card glass flex-center">
+                    <button class="btn-primary" id="btn-download-report">Download CSV Report</button>
+                    <p class="mt-10 info-text">This will create a final statistical report for your review analysis.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Review Item Template -->
+    <template id="review-template">
+        <div class="review-card glass">
+            <div class="review-header">
+                <span class="badge badge-maybe">LLM Decision: Maybe</span>
+                <span class="record-id">ID: </span>
+            </div>
+            <h3 class="record-title">Title Here</h3>
+            <div class="record-abstract">Abstract goes here...</div>
+            <div class="llm-rationale" id="llm-rationale-container">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="review-actions">
+                <button class="btn-success btn-include">Include</button>
+                <button class="btn-danger btn-exclude-init">Exclude</button>
+            </div>
+            <div class="exclude-options hidden mt-10">
+                <p style="margin-bottom: 8px; font-size: 0.9rem;">Select Unmet Criteria:</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="exclude-reasons-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="/static/js/app.js?v=2"></script>
+</body>
+
+</html>
