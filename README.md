@@ -1,6 +1,8 @@
 # 🛡️ PRISMA LLM-Assisted Screening System
 
-A powerful, high-precision screening assistant designed for **Systematic Literature Reviews**. This system leverages the Google Gemini API to accelerate the PRISMA screening phase, specifically optimized for research on **cybercriminal behavior** and the **human element** in cybersecurity.
+A high-precision screening assistant designed for **Systematic Literature Reviews**. This system leverages the Google Gemini API to accelerate the title/abstract screening phase of the PRISMA 2020 reporting guideline [[1]](#references), specifically optimized for research on **cybercriminal behavior** and the **human element** in cybersecurity.
+
+The tool implements the *screening* stage described in PRISMA 2020 [[1]](#references); it does **not** replace any other PRISMA stage (protocol registration, eligibility assessment of full texts, risk-of-bias appraisal, synthesis, or reporting). All AI-suggested decisions are user-configurable inclusion criteria, fully logged for audit, and surfaced for human adjudication in the "Maybe" review queue.
 
 ---
 
@@ -111,5 +113,17 @@ python3 main.py report --input data/final_included.json --output data/screening_
 
 ---
 
+## 📚 References
+
+<a id="references"></a>
+
+[1] Page M J, McKenzie J E, Bossuyt P M, Boutron I, Hoffmann T C, Mulrow C D et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews BMJ 2021; 372 :n71 doi:10.1136/bmj.n71
+
+The PRISMA 2020 statement and flow diagram are made available by the PRISMA Group at [prisma-statement.org](https://www.prisma-statement.org/).
+
+> **Disclaimer.** This software is an independent screening-assistant tool and is *not* endorsed by, or affiliated with, the PRISMA Group. It implements one stage of the PRISMA-recommended workflow; users remain responsible for adherence to the full reporting guideline.
+
+---
+
 ## 📝 License
-This project is designed for academic research purposes.
+Released under the MIT License — see [LICENSE](LICENSE). Intended for academic research; please cite the PRISMA references above when reporting reviews conducted with this tool.
