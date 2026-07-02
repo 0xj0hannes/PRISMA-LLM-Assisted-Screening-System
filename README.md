@@ -6,6 +6,14 @@ The tool implements the *screening* stage described in PRISMA 2020 [[1]](#refere
 
 ---
 
+## 🎯 Statement of Need
+
+The title/abstract screening phase of a systematic review is laborious and prone to reviewer fatigue: thousands of records must be judged against predefined inclusion criteria. Existing platforms such as [Rayyan](https://www.rayyan.ai/) and [ASReview](https://asreview.nl/) accelerate this with collaboration features and active-learning classifiers, but those classifiers require an accumulated set of human labels before they help, and they typically surface a single relevance ranking rather than an explicit, criterion-by-criterion justification.
+
+This tool takes a complementary, zero-shot approach: it sends each record to an LLM together with your natural-language inclusion criteria and returns, **for every criterion**, a score, quoted supporting evidence, and a rationale — no training labels required. The model only triages; a human adjudicates every ambiguous (`Maybe`) case, and all prompts and raw responses are logged so each AI suggestion remains auditable. It is built for researchers, librarians, and students who want to cut manual screening effort without giving up the transparency and human oversight the methodology demands.
+
+---
+
 ## ✨ Key Features
 
 - 🖥 **Premium Web Dashboard**: A sleek, dark-mode GUI natively powered by FastAPI for seamless visual ingestion, screening, and human-in-the-loop review.
@@ -50,7 +58,7 @@ For each block, you must provide:
 - **`name`**: A short, human-readable identifier.
 - **`definition`**: A primary description of the rule.
 - **`signals`**: String patterns for the AI to understand what characteristics to actively look for.
-- **`anti_patterns`**: Negative indicators that shouldn't be falsely conflated (useful for forcing high precision).
+- **`negative_indicators`**: Negative indicators that shouldn't be falsely conflated (useful for forcing high precision).
 
 The system's entire stack—including the LLM Prompts, the CSV Export Analytics, the CLI Tools, and the Web GUI—will automatically parse your `criteria.json` and perfectly adapt to your experiment parameters without requiring any further code modifications!
 
@@ -122,6 +130,25 @@ python3 main.py report --input data/final_included.json --output data/screening_
 The PRISMA 2020 statement and flow diagram are made available by the PRISMA Group at [prisma-statement.org](https://www.prisma-statement.org/).
 
 > **Disclaimer.** This software is an independent screening-assistant tool and is *not* endorsed by, or affiliated with, the PRISMA Group. It implements one stage of the PRISMA-recommended workflow; users remain responsible for adherence to the full reporting guideline.
+
+---
+
+## 🧪 Running the Tests
+
+The test suite runs **offline** — no Gemini API key is required (the LLM client is mocked).
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Tests cover ingestion (BibTeX parsing), deduplication, dynamic prompt generation, CSV reporting, and the LLM-orchestration/retry logic in `screen_record`. The same suite runs in CI on every push and pull request (see `.github/workflows/tests.yml`).
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and the pull-request workflow, and note our [Code of Conduct](CODE_OF_CONDUCT.md). Bug reports and feature requests go to the [issue tracker](https://github.com/0xj0hannes/PRISMA-LLM-Assisted-Screening-System/issues).
 
 ---
 
