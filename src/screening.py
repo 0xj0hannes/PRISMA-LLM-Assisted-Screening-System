@@ -27,7 +27,7 @@ if api_key:
     client = genai.Client(api_key=api_key)
 
 def screen_record(record: Record) -> ScreeningResult:
-    model_name = config.get("MODEL_NAME", "gemini-1.5-flash")
+    model_name = config.get("MODEL_NAME", "gemini-3.5-flash")
     criteria = config.get("CRITERIA", {})
     prompt = generate_prompt(title=record.title, abstract=record.abstract, criteria=criteria)
     
@@ -110,6 +110,21 @@ def screen_record(record: Record) -> ScreeningResult:
         notes=f"Failed after {max_retries} attempts. Last error: {last_error}"
     )
 
+def is_model_unavailable(notes: str) -> bool:
+    """True if a failed result's notes indicate the configured model itself is
+    gone (404 / deprecated), so retrying other records with it is pointless."""
+    if "Failed after" not in notes:
+        return False
+    lowered = notes.lower()
+    return "404" in notes or "not_found" in lowered or "not found" in lowered \
+        or "no longer available" in lowered
+
+MODEL_UNAVAILABLE_HINT = (
+    "The configured model appears to be unavailable or deprecated. "
+    "Set MODEL_NAME in .env to a current model (run 'python3 test_gemini.py' "
+    "to list the models available to your API key)."
+)
+
 def batch_screen(records: List[Record], already_screened: Dict[str, ScreeningResult] = None):
     """
     Screens records using LLM. Returns a generator that yields (record_id, result).
@@ -134,6 +149,10 @@ def batch_screen(records: List[Record], already_screened: Dict[str, ScreeningRes
         yield record.id, result
         
         # Check for fatal errors that should stop the batch
+        if is_model_unavailable(result.notes):
+            print(f"\n[FATAL] Model unavailable at record {i}. Stopping batch.")
+            print(f"  {MODEL_UNAVAILABLE_HINT}")
+            break
         if "Quota exceeded" in result.notes or "429" in result.notes:
             print(f"\n[FATAL] API limit reached at record {i}. Stopping batch.")
             break
