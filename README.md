@@ -42,9 +42,14 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory:
 ```env
 GEMINI_API_KEY=your_api_key_here
-MODEL_NAME=gemini-2.5-flash
+MODEL_NAME=gemini-3.5-flash
 MAX_RETRIES=3
 ```
+
+> **Note:** Google deprecates older Gemini models over time. If screening fails
+> with a `404` error such as *"This model is no longer available to new users"*,
+> run `python3 test_gemini.py` to list the models available to your API key and
+> set `MODEL_NAME` accordingly.
 
 ---
 

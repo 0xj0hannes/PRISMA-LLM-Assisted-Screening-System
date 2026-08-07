@@ -94,3 +94,33 @@ def test_persistent_error_returns_failed_maybe(monkeypatch):
     assert result.decision == "Maybe"
     assert "Failed after" in result.notes
     assert result.record_id == "y"
+
+
+MODEL_GONE_NOTES = (
+    "Failed after 3 attempts. Last error: 404 NOT_FOUND. This model "
+    "models/gemini-2.5-flash is no longer available to new users. "
+    "Please update your code to use a newer model"
+)
+
+
+def test_is_model_unavailable_detects_deprecated_model():
+    assert screening.is_model_unavailable(MODEL_GONE_NOTES)
+    # Only failure notes count, and only model-shaped failures.
+    assert not screening.is_model_unavailable("")
+    assert not screening.is_model_unavailable(
+        "Failed after 3 attempts. Last error: invalid JSON")
+    assert not screening.is_model_unavailable("404 in abstract text")
+
+
+def test_batch_screen_stops_when_model_unavailable(monkeypatch):
+    def fake_screen(record):
+        return screening.ScreeningResult(
+            record_id=record.id, decision="Maybe", notes=MODEL_GONE_NOTES)
+
+    monkeypatch.setattr(screening, "screen_record", fake_screen)
+
+    records = [make_record(id="a"), make_record(id="b", doi="10.1000/b")]
+    results = list(screening.batch_screen(records))
+
+    # The first failure aborts the batch instead of retrying every record.
+    assert [rid for rid, _ in results] == ["a"]

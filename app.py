@@ -9,7 +9,7 @@ import tempfile
 from src.ingestion import load_bibtex
 from src.deduplication import deduplicate_records
 from src.models import Record, ScreeningResult, Dataset
-from src.screening import screen_record
+from src.screening import screen_record, is_model_unavailable, MODEL_UNAVAILABLE_HINT
 from src.reporting import generate_report
 from src.db import init_db, save_record, save_screening_result, get_all_records, get_all_screening_results, get_unique_records
 from src.config import load_config
@@ -118,6 +118,10 @@ async def start_screening(background_tasks: BackgroundTasks):
                     scores = [f"{k}: {v.score}" for k, v in res.criteria.items()]
                     print(f"   -> Result: {res.decision} ({', '.join(scores)})")
                     save_screening_result(res.model_dump())
+                    if is_model_unavailable(res.notes):
+                        print(f"   [FATAL] Model unavailable. Stopping screening.")
+                        print(f"   {MODEL_UNAVAILABLE_HINT}")
+                        break
                 except Exception as e:
                     print(f"   [!] Error on {record.id}: {e}")
         finally:
