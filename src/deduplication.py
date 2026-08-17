@@ -1,11 +1,31 @@
 from typing import List, Dict
 from .models import Record
+from .utils import normalize_string
+
+
+def title_year_author_key(record: Record) -> str:
+    """Fallback identity key for records that share no DOI.
+
+    Built in one place so the lookup and the index insertion can never drift
+    apart: if the two ever disagreed, every record would look new and
+    deduplication would silently stop working for DOI-less records.
+    """
+    first_author = record.authors.split(',')[0] if record.authors else ""
+    return f"{record.normalized_title}|{record.year}|{normalize_string(first_author)}"
+
 
 def deduplicate_records(records: List[Record]) -> List[Record]:
     """
     Deduplicate records based on:
     1. DOI (exact match)
     2. Title + Year + First Author (exact match of normalized string)
+
+    Known residual case: databases sometimes disagree about which part of a name
+    is the surname (e.g. "You, Xia Zheng" vs "Xia, ZhengYou" for one author), so
+    the first-author half of the key differs and the pair survives as two
+    records. Widening the key to title + year alone would catch these, but it
+    would also merge genuinely distinct papers that share a short title within a
+    year, so the stricter key is kept deliberately.
     """
     # Canonical records map: {canonical_id: record}
     canonical_records: Dict[str, Record] = {}
@@ -30,8 +50,7 @@ def deduplicate_records(records: List[Record]) -> List[Record]:
         
         # 2. Title + Year + First Author Check (High Confidence)
         if not is_duplicate:
-            first_author = record.authors.split(',')[0].strip().lower() if record.authors else ""
-            tya_key = f"{record.normalized_title}|{record.year}|{first_author}"
+            tya_key = title_year_author_key(record)
             if tya_key in seen_tya:
                 is_duplicate = True
                 canonical_id = seen_tya[tya_key]
@@ -52,8 +71,6 @@ def deduplicate_records(records: List[Record]) -> List[Record]:
             if record.doi:
                 seen_dois[record.doi.lower().strip()] = record.id
             
-            first_author = record.authors.split(',')[0].strip().lower() if record.authors else ""
-            tya_key = f"{record.normalized_title}|{record.year}|{first_author}"
-            seen_tya[tya_key] = record.id
+            seen_tya[title_year_author_key(record)] = record.id
             
     return list(canonical_records.values())
